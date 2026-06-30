@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from pathlib import Path
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../assets', static_url_path='/assets')
 
 DB_PATH = Path(__file__).parent.parent / "bot" / "fantasy.db"
 engine  = create_engine(f"sqlite:///{DB_PATH}")

@@ -43,7 +43,7 @@
                         <td>
                             <div style="display:flex; align-items:center; gap:0.75rem;">
                                 <img
-                                    src="{{ url_for('static', filename='img/players/' + p.name.lower().replace(' ','_') + '.png') }}"
+                                    src="{{ url_for('static', filename='players/' + p.name.lower().replace(' ','_') + '.png') }}"
                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                     class="player-avatar-sm"
                                     alt="{{ p.name }}"
@@ -57,7 +57,7 @@
                         <td>
                             <div style="display:flex; align-items:center; gap:0.5rem;">
                                 <img
-                                    src="{{ url_for('static', filename='img/clubs/' + p.team.lower() + '.png') }}"
+                                    src="{{ url_for('static', filename='clubs/' + p.team.lower() + '.png') }}"
                                     onerror="this.style.display='none'"
                                     class="club-logo-xs"
                                     alt="{{ p.team }}"
@@ -96,7 +96,7 @@
         <div class="player-block-card">
             <div class="player-block-img-wrap">
                 <img
-                    src="{{ url_for('static', filename='img/players/' + p.name.lower().replace(' ','_') + '.png') }}"
+                    src="{{ url_for('static', filename='players/' + p.name.lower().replace(' ','_') + '.png') }}"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                     class="player-block-img"
                     alt="{{ p.name }}"
@@ -109,7 +109,7 @@
                 <div class="player-block-name">{{ p.name }}</div>
                 <div class="player-block-club">
                     <img
-                        src="{{ url_for('static', filename='img/clubs/' + p.team.lower() + '.png') }}"
+                        src="{{ url_for('static', filename='clubs/' + p.team.lower() + '.png') }}"
                         onerror="this.style.display='none'"
                         class="club-logo-xs"
                         alt=""

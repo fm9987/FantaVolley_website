@@ -12,14 +12,13 @@
 </div>
 
 <!-- ── REAL GAMES ─────────────────────────────────────────────── -->
-<!-- ── REAL GAMES ─────────────────────────────────────────────── -->
 <div id="tab-real">
     <div class="match-grid">
         {% for game in games %}
         <a href="/matches/{{ game.id }}" class="match-card">
             <div>
                 <div style="display:flex; align-items:center; gap:0.6rem;">
-                    <img src="{{ url_for('static', filename='img/clubs/' + game.home.lower() + '.png') }}"
+                    <img src="{{ url_for('static', filename='clubs/' + game.home.lower() + '.png') }}"
                          onerror="this.style.display='none'" style="width:64px; height:64px; object-fit:contain;" class="club-logo-sm" alt="">
                     <div class="match-team home">{{ game.home }}</div>
                 </div>
@@ -44,7 +43,7 @@
             <div style="text-align:right;">
                 <div style="display:flex; align-items:center; gap:0.6rem; justify-content:flex-end;">
                     <div class="match-team away">{{ game.away }}</div>
-                    <img src="{{ url_for('static', filename='img/clubs/' + game.away.lower() + '.png') }}"
+                    <img src="{{ url_for('static', filename='clubs/' + game.away.lower() + '.png') }}"
                          onerror="this.style.display='none'" style="width:64px; height:64px; object-fit:contain;" class="club-logo-sm" alt="">
                 </div>
                 {% if game.winner == game.away %}
