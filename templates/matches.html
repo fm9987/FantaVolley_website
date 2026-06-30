@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Matches — SuperLega Fantasy{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1>Match <span>Results</span></h1>
+</div>
+
+<div class="view-toggle mb-3">
+    <button class="toggle-btn active" id="btn-real" onclick="setTab('real')">🏐 SuperLega Results</button>
+    <button class="toggle-btn" id="btn-fantasy" onclick="setTab('fantasy')">⚡ Fantasy Matchups</button>
+</div>
+
+<!-- ── REAL GAMES ─────────────────────────────────────────────── -->
+<div id="tab-real">
+    <div class="match-grid">
+        {% for game in games %}
+        <a href="/matches/{{ game.id }}" class="match-card">
+            <div>
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <img src="{{ url_for('static', filename='img/clubs/' + game.home.lower() + '.png') }}"
+                         onerror="this.style.display='none'" class="club-logo-sm" alt="">
+                    <div class="match-team home">{{ game.home }}</div>
+                </div>
+                {% if game.winner == game.home %}
+                <div style="font-size:0.72rem; color:var(--accent); margin-top:0.3rem; margin-left:2rem;">Winner ✓</div>
+                {% endif %}
+            </div>
+            <div class="match-score">
+                {{ game.score if game.score else 'vs' }}
+                <div class="match-meta">Week {{ game.week }}</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="display:flex; align-items:center; gap:0.6rem; justify-content:flex-end;">
+                    <div class="match-team away">{{ game.away }}</div>
+                    <img src="{{ url_for('static', filename='img/clubs/' + game.away.lower() + '.png') }}"
+                         onerror="this.style.display='none'" class="club-logo-sm" alt="">
+                </div>
+                {% if game.winner == game.away %}
+                <div style="font-size:0.72rem; color:var(--accent); margin-top:0.3rem; margin-right:2rem;">Winner ✓</div>
+                {% endif %}
+            </div>
+        </a>
+        {% else %}
+        <div class="card text-muted text-center" style="padding:2rem;">No matches played yet.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ── FANTASY MATCHUPS ───────────────────────────────────────── -->
+<div id="tab-fantasy" style="display:none;">
+    {% if matchups %}
+        {% set gw_list = [] %}
+        {% for m in matchups %}{% if m.gameweek not in gw_list %}{% set _ = gw_list.append(m.gameweek) %}{% endif %}{% endfor %}
+
+        {% for gw in gw_list|sort %}
+        <div class="stats-section mb-3">
+            <div class="section-title">Gameweek <span>{{ gw }}</span></div>
+            <div class="match-grid">
+                {% for m in matchups if m.gameweek == gw %}
+                <a href="/fantasy/{{ m.id }}" class="match-card">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:0.6rem;">
+                            {% if m.home_logo %}
+                            <img src="{{ m.home_logo }}" class="team-logo-sm" alt="">
+                            {% else %}
+                            <div class="team-logo-placeholder" style="width:28px;height:28px;font-size:0.8rem;">🏐</div>
+                            {% endif %}
+                            <div class="match-team home">{{ m.home_team_name }}</div>
+                        </div>
+                        {% if m.winner_name == m.home_team_name %}
+                        <div style="font-size:0.72rem; color:var(--accent); margin-top:0.3rem;">Winner ✓</div>
+                        {% endif %}
+                    </div>
+                    <div class="match-score">
+                        {{ m.home_points }} — {{ m.away_points }}
+                        <div class="match-meta">
+                            {% if m.winner_name %}{{ m.winner_name }} wins{% else %}Draw{% endif %}
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="display:flex; align-items:center; gap:0.6rem; justify-content:flex-end;">
+                            <div class="match-team away">{{ m.away_team_name }}</div>
+                            {% if m.away_logo %}
+                            <img src="{{ m.away_logo }}" class="team-logo-sm" alt="">
+                            {% else %}
+                            <div class="team-logo-placeholder" style="width:28px;height:28px;font-size:0.8rem;">🏐</div>
+                            {% endif %}
+                        </div>
+                        {% if m.winner_name == m.away_team_name %}
+                        <div style="font-size:0.72rem; color:var(--accent); margin-top:0.3rem;">Winner ✓</div>
+                        {% endif %}
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="card text-center" style="padding:3rem;">
+        <div style="font-size:3rem; margin-bottom:1rem;">⚡</div>
+        <div style="font-family:var(--font-head); font-size:1.8rem; font-weight:800; text-transform:uppercase;">Fantasy Matchups</div>
+        <div class="text-muted mt-1">No matchups yet — draft your squad first!</div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function setTab(t) {
+    document.getElementById('tab-real').style.display    = t==='real'    ? 'block' : 'none';
+    document.getElementById('tab-fantasy').style.display = t==='fantasy' ? 'block' : 'none';
+    document.getElementById('btn-real').classList.toggle('active',    t==='real');
+    document.getElementById('btn-fantasy').classList.toggle('active', t==='fantasy');
+    localStorage.setItem('matchTab', t);
+}
+const saved = localStorage.getItem('matchTab');
+if (saved) setTab(saved);
+</script>
+
+{% endblock %}

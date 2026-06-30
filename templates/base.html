@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SuperLega Fantasy{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="nav-brand">
+        <span class="nav-ball">🏐</span>
+        <span class="nav-title">SUPERLEGA <span class="nav-accent">FANTASY</span></span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="/" {% if request.path == '/' %}class="active"{% endif %}>Home</a></li>
+        <li><a href="/standings" {% if request.path == '/standings' %}class="active"{% endif %}>Standings</a></li>
+        <li><a href="/teams" {% if request.path == '/teams' %}class="active"{% endif %}>Teams</a></li>
+        <li><a href="/players" {% if request.path == '/players' %}class="active"{% endif %}>Players</a></li>
+        <li><a href="/matches" {% if request.path == '/matches' %}class="active"{% endif %}>Matches</a></li>
+    </ul>
+</nav>
+
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+    <p>SuperLega Fantasy League &mdash; Powered by the Pi</p>
+</footer>
+
+</body>
+</html>

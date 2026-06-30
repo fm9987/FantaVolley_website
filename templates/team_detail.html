@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}{{ manager.team_name }} — SuperLega Fantasy{% endblock %}
+{% block content %}
+
+<div class="team-header">
+    {% if manager.logo_url %}
+    <img src="{{ manager.logo_url }}" class="team-logo-lg" alt="{{ manager.team_name }}">
+    {% else %}
+    <div class="team-logo-lg-placeholder">🏐</div>
+    {% endif %}
+    <div>
+        <h1>{{ manager.team_name }}</h1>
+        <div class="text-muted mt-1">{{ starters|length }} starters · {{ bench|length }} bench</div>
+    </div>
+</div>
+
+<!-- Gameweek selector -->
+<div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap;">
+    <span style="font-family:var(--font-head); font-weight:700; text-transform:uppercase; font-size:0.9rem; color:var(--muted);">Gameweek:</span>
+    <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+        {% for gw in gameweeks %}
+        <a
+            href="/teams/{{ manager.id }}?gw={{ gw }}"
+            class="gw-pill {% if gw == selected_gw %}active{% endif %}"
+        >GW{{ gw }}</a>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="two-col">
+    <div class="stats-section">
+        <div class="section-title">⚡ <span>Starters</span> — GW{{ selected_gw }}</div>
+        {% if starters %}
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Club</th>
+                        <th>Position</th>
+                        <th class="text-right">GW Pts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in starters %}
+                    <tr>
+                        <td style="font-weight:600;">{{ r.name }}</td>
+                        <td class="text-muted">{{ r.club }}</td>
+                        <td><span class="badge badge-{{ r.role }}">{{ r.role }}</span></td>
+                        <td class="text-right">
+                            {% if r.gw_pts >= 80 %}
+                            <span class="pts-high">{{ r.gw_pts }}</span>
+                            {% elif r.gw_pts >= 40 %}
+                            <span class="pts-mid">{{ r.gw_pts }}</span>
+                            {% elif r.gw_pts > 0 %}
+                            <span>{{ r.gw_pts }}</span>
+                            {% else %}
+                            <span class="pts-low">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr style="border-top:2px solid var(--border);">
+                        <td colspan="3" style="font-family:var(--font-head); font-weight:700; text-transform:uppercase; font-size:0.85rem;">GW{{ selected_gw }} Total</td>
+                        <td class="text-right"><span class="stat-pill">{{ gw_total }}</span></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {% else %}
+        <div class="card text-muted">No starters set for GW{{ selected_gw }}.</div>
+        {% endif %}
+    </div>
+
+    <div class="stats-section">
+        <div class="section-title">🪑 <span>Bench</span> — GW{{ selected_gw }}</div>
+        {% if bench %}
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Club</th>
+                        <th>Position</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in bench %}
+                    <tr>
+                        <td style="font-weight:600;">{{ r.name }}</td>
+                        <td class="text-muted">{{ r.club }}</td>
+                        <td><span class="badge badge-{{ r.role }}">{{ r.role }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card text-muted">No bench set for GW{{ selected_gw }}.</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-2">
+    <a href="/teams" class="text-muted" style="font-size:0.9rem;">← Back to all teams</a>
+</div>
+
+{% endblock %}

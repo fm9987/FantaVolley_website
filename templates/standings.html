@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Standings — SuperLega Fantasy{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1>League <span>Standings</span></h1>
+    <p>3pts for a win · 1pt for a draw · 0 for a loss</p>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:3rem;">#</th>
+                    <th>Team</th>
+                    <th class="text-right">W</th>
+                    <th class="text-right">D</th>
+                    <th class="text-right">L</th>
+                    <th class="text-right">Fantasy Pts</th>
+                    <th class="text-right">Pts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in managers %}
+                <tr>
+                    <td style="width:3rem; vertical-align:middle;">
+                        <span class="rank-num {% if loop.index==1 %}rank-1{% elif loop.index==2 %}rank-2{% elif loop.index==3 %}rank-3{% endif %}">{{ loop.index }}</span>
+                    </td>
+                    <td style="vertical-align:middle;">
+                        <div style="display:flex; align-items:center; gap:0.75rem;">
+                            {% if m.logo_url %}
+                            <img src="{{ m.logo_url }}" class="team-logo-sm" alt="{{ m.team_name }}">
+                            {% else %}
+                            <div class="team-logo-placeholder">🏐</div>
+                            {% endif %}
+                            <a href="/teams/{{ m.id }}">{{ m.team_name }}</a>
+                        </div>
+                    </td>
+                    <td class="text-right" style="color:var(--green); vertical-align:middle;">{{ m.wins }}</td>
+                    <td class="text-right text-muted" style="vertical-align:middle;">{{ m.draws }}</td>
+                    <td class="text-right" style="color:var(--red); vertical-align:middle;">{{ m.losses }}</td>
+                    <td class="text-right text-muted" style="vertical-align:middle;">{{ m.total_fantasy_pts }}</td>
+                    <td class="text-right" style="vertical-align:middle;"><span class="stat-pill">{{ m.league_points }}</span></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-muted text-center" style="padding:2rem;">No managers registered yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

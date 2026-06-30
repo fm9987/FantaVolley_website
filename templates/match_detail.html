@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}{{ game.home }} vs {{ game.away }} — SuperLega Fantasy{% endblock %}
+{% block content %}
+
+<div class="match-header">
+    <div class="home">
+        <div class="team-name">{{ game.home }}</div>
+        {% if game.winner == game.home %}
+        <span class="winner-tag">Winner</span>
+        {% endif %}
+    </div>
+    <div class="score-block">
+        <div class="final-score">{{ game.score }}</div>
+        <div class="match-meta" style="margin-top:0.5rem;">Week {{ game.week }}</div>
+    </div>
+    <div class="away">
+        <div class="team-name">{{ game.away }}</div>
+        {% if game.winner == game.away %}
+        <span class="winner-tag">Winner</span>
+        {% endif %}
+    </div>
+</div>
+
+{% macro stats_table(team_stats, team_name) %}
+<div class="stats-section">
+    <div class="section-title">{{ team_name }} <span>Stats</span></div>
+    <div class="card table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Pos</th>
+                    <th class="text-right">Fantasy</th>
+                    <th class="text-right">Atk</th>
+                    <th class="text-right">Err</th>
+                    <th class="text-right">Eff%</th>
+                    <th class="text-right">Blk</th>
+                    <th class="text-right">Ace</th>
+                    <th class="text-right">Digs</th>
+                    <th class="text-right">Ast</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in team_stats %}
+                <tr>
+                    <td style="font-weight:600; white-space:nowrap;">{{ s.name }}</td>
+                    <td><span class="badge badge-{{ s.role }}">{{ s.role }}</span></td>
+                    <td class="text-right">
+                        {% if s.fantasy_points >= 40 %}
+                        <span class="pts-high">{{ s.fantasy_points }}</span>
+                        {% elif s.fantasy_points >= 15 %}
+                        <span class="pts-mid">{{ s.fantasy_points }}</span>
+                        {% else %}
+                        <span class="pts-low">{{ s.fantasy_points }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-right">{{ s.attack_points }}</td>
+                    <td class="text-right text-muted">{{ s.attack_errors }}</td>
+                    <td class="text-right">
+                        {% if s.attack_eff > 50 %}
+                        <span style="color:var(--green)">{{ "%.0f"|format(s.attack_eff) }}%</span>
+                        {% elif s.attack_eff < 0 %}
+                        <span style="color:var(--red)">{{ "%.0f"|format(s.attack_eff) }}%</span>
+                        {% else %}
+                        {{ "%.0f"|format(s.attack_eff) }}%
+                        {% endif %}
+                    </td>
+                    <td class="text-right">{{ s.block_points }}</td>
+                    <td class="text-right">{{ s.serve_points }}</td>
+                    <td class="text-right">{{ s.digs }}</td>
+                    <td class="text-right">{{ s.set_assists }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endmacro %}
+
+{{ stats_table(home_stats, game.home) }}
+{{ stats_table(away_stats, game.away) }}
+
+<div class="mt-2">
+    <a href="/matches" class="text-muted" style="font-size:0.9rem;">← Back to all matches</a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Players — SuperLega Fantasy{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1>All <span>Players</span></h1>
+    <p>Full SuperLega roster available for drafting.</p>
+</div>
+
+<!-- View toggle -->
+<div class="view-toggle mb-3">
+    <button class="toggle-btn active" id="btn-list" onclick="setView('list')">
+        ☰ List
+    </button>
+    <button class="toggle-btn" id="btn-grid" onclick="setView('grid')">
+        ⊞ Cards
+    </button>
+</div>
+
+{% set roles = [('outside','Outside Hitter'),('opposite','Opposite'),('setter','Setter'),('middle','Middle Blocker'),('libero','Libero')] %}
+
+<!-- ── LIST VIEW ─────────────────────────────────────────────── -->
+<div id="view-list">
+{% for role_key, role_label in roles %}
+{% set role_players = players | selectattr('role', 'equalto', role_key) | list %}
+{% if role_players %}
+<div class="stats-section mb-3">
+    <div class="section-title">{{ role_label }}s <span class="text-muted" style="font-size:1rem; font-weight:400;">({{ role_players|length }})</span></div>
+    <div class="card">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Club</th>
+                        <th>Position</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in role_players %}
+                    <tr>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:0.75rem;">
+                                <img
+                                    src="{{ url_for('static', filename='img/players/' + p.name.lower().replace(' ','_') + '.png') }}"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                    class="player-avatar-sm"
+                                    alt="{{ p.name }}"
+                                >
+                                <div class="player-avatar-sm-placeholder" style="display:none;">
+                                    {{ p.name[0] }}
+                                </div>
+                                <span style="font-weight:600;">{{ p.name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:0.5rem;">
+                                <img
+                                    src="{{ url_for('static', filename='img/clubs/' + p.team.lower() + '.png') }}"
+                                    onerror="this.style.display='none'"
+                                    class="club-logo-xs"
+                                    alt="{{ p.team }}"
+                                >
+                                <span class="text-muted">{{ p.team }}</span>
+                            </div>
+                        </td>
+                        <td><span class="badge badge-{{ p.role }}">{{ p.role }}</span></td>
+                        <td>
+                            {% if p.drafted != '_' %}
+                            <span style="color:var(--muted); font-size:0.8rem;">Drafted</span>
+                            {% else %}
+                            <span style="color:var(--green); font-size:0.8rem;">Available</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+</div>
+
+<!-- ── GRID VIEW ─────────────────────────────────────────────── -->
+<div id="view-grid" style="display:none;">
+{% for role_key, role_label in roles %}
+{% set role_players = players | selectattr('role', 'equalto', role_key) | list %}
+{% if role_players %}
+<div class="stats-section mb-3">
+    <div class="section-title">{{ role_label }}s</div>
+    <div class="player-card-grid">
+        {% for p in role_players %}
+        <div class="player-block-card">
+            <div class="player-block-img-wrap">
+                <img
+                    src="{{ url_for('static', filename='img/players/' + p.name.lower().replace(' ','_') + '.png') }}"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                    class="player-block-img"
+                    alt="{{ p.name }}"
+                >
+                <div class="player-block-placeholder">
+                    {{ p.name.split()[0][0] }}{{ p.name.split()[-1][0] }}
+                </div>
+            </div>
+            <div class="player-block-info">
+                <div class="player-block-name">{{ p.name }}</div>
+                <div class="player-block-club">
+                    <img
+                        src="{{ url_for('static', filename='img/clubs/' + p.team.lower() + '.png') }}"
+                        onerror="this.style.display='none'"
+                        class="club-logo-xs"
+                        alt=""
+                    >
+                    {{ p.team }}
+                </div>
+                <span class="badge badge-{{ p.role }}">{{ p.role }}</span>
+            </div>
+            {% if p.drafted != '_' %}
+            <div class="player-block-drafted">Drafted</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+</div>
+
+<script>
+function setView(v) {
+    document.getElementById('view-list').style.display = v === 'list' ? 'block' : 'none';
+    document.getElementById('view-grid').style.display = v === 'grid' ? 'block' : 'none';
+    document.getElementById('btn-list').classList.toggle('active', v === 'list');
+    document.getElementById('btn-grid').classList.toggle('active', v === 'grid');
+    localStorage.setItem('playerView', v);
+}
+// restore last choice
+const saved = localStorage.getItem('playerView');
+if (saved) setView(saved);
+</script>
+
+{% endblock %}

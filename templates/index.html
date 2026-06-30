@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}SuperLega Fantasy — Home{% endblock %}
+{% block content %}
+
+<div class="hero">
+    <h1>SuperLega <span>Fantasy</span></h1>
+    <p>Pick your squad. Trust the stats. Dominate the league.</p>
+</div>
+
+<div class="two-col">
+
+    <div>
+        <div class="section-title">Recent <span>Results</span></div>
+        <div class="match-grid">
+            {% for game in games %}
+            <a href="/matches/{{ game.id }}" class="match-card">
+                <div class="match-team home">{{ game.home }}</div>
+                <div class="match-score">
+                    {{ game.score }}
+                    <div class="match-meta">Week {{ game.week }}</div>
+                </div>
+                <div class="match-team away">{{ game.away }}</div>
+            </a>
+            {% else %}
+            <div class="card text-muted">No matches played yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div>
+        <div class="section-title">Managers <span>Registered</span></div>
+        <div class="card">
+            {% if managers %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Team</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in managers %}
+                    <tr>
+                        <td class="text-muted">{{ loop.index }}</td>
+                        <td><a href="/teams/{{ m.id }}">{{ m.team_name }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">No managers registered yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

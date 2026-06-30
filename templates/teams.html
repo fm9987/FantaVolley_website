@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Teams — SuperLega Fantasy{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1>All <span>Teams</span></h1>
+    <p>Click a team to see their full roster.</p>
+</div>
+
+<div class="card-grid">
+    {% for m in managers %}
+    <a href="/teams/{{ m.id }}" style="text-decoration:none;">
+        <div class="card" style="display:flex; align-items:center; gap:1rem; transition: border-color 0.15s;" onmouseover="this.style.borderColor='var(--accent-dim)'" onmouseout="this.style.borderColor='var(--border)'">
+            {% if m.logo_url %}
+            <img src="{{ m.logo_url }}" class="team-logo-lg" alt="{{ m.team_name }}">
+            {% else %}
+            <div class="team-logo-lg-placeholder">🏐</div>
+            {% endif %}
+            <div>
+                <div style="font-family: var(--font-head); font-size:1.3rem; font-weight:700; text-transform:uppercase;">{{ m.team_name }}</div>
+                <div class="text-muted" style="font-size:0.85rem; margin-top:0.2rem;">View roster →</div>
+            </div>
+        </div>
+    </a>
+    {% else %}
+    <div class="card text-muted">No teams registered yet.</div>
+    {% endfor %}
+</div>
+
+{% endblock %}
