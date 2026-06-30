@@ -94,9 +94,7 @@ def team_detail(manager_id):
 
         # get game IDs for selected gameweek
         game_ids = db.execute(text("""
-            SELECT g.id FROM games g
-            JOIN gameweeks gw ON g.gameweek_id = gw.id
-            WHERE gw.number = :gw AND g.is_final = 1
+            SELECT id FROM games WHERE week = :gw
         """), {"gw": selected_gw}).fetchall()
         gids = [r.id for r in game_ids]
 
