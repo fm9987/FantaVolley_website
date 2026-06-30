@@ -12,6 +12,7 @@
 </div>
 
 <!-- ── REAL GAMES ─────────────────────────────────────────────── -->
+<!-- ── REAL GAMES ─────────────────────────────────────────────── -->
 <div id="tab-real">
     <div class="match-grid">
         {% for game in games %}
@@ -19,22 +20,32 @@
             <div>
                 <div style="display:flex; align-items:center; gap:0.6rem;">
                     <img src="{{ url_for('static', filename='img/clubs/' + game.home.lower() + '.png') }}"
-                         onerror="this.style.display='none'" class="club-logo-sm" alt="">
+                         onerror="this.style.display='none'" style="width:64px; height:64px; object-fit:contain;" class="club-logo-sm" alt="">
                     <div class="match-team home">{{ game.home }}</div>
                 </div>
                 {% if game.winner == game.home %}
                 <div style="font-size:0.72rem; color:var(--accent); margin-top:0.3rem; margin-left:2rem;">Winner ✓</div>
                 {% endif %}
             </div>
+
             <div class="match-score">
-                {{ game.score if game.score else 'vs' }}
+                {% if game.score and game.winner %}
+                    {% if game.winner == game.home %}
+                        3-{{ game.score }}
+                    {% else %}
+                        {{ game.score }}-3
+                    {% endif %}
+                {% else %}
+                    vs
+                {% endif %}
                 <div class="match-meta">Week {{ game.week }}</div>
             </div>
+
             <div style="text-align:right;">
                 <div style="display:flex; align-items:center; gap:0.6rem; justify-content:flex-end;">
                     <div class="match-team away">{{ game.away }}</div>
                     <img src="{{ url_for('static', filename='img/clubs/' + game.away.lower() + '.png') }}"
-                         onerror="this.style.display='none'" class="club-logo-sm" alt="">
+                         onerror="this.style.display='none'" style="width:64px; height:64px; object-fit:contain;" class="club-logo-sm" alt="">
                 </div>
                 {% if game.winner == game.away %}
                 <div style="font-size:0.72rem; color:var(--accent); margin-top:0.3rem; margin-right:2rem;">Winner ✓</div>

@@ -18,7 +18,7 @@ def get_db():
 def index():
     db = get_db()
     try:
-        games    = db.execute(text("SELECT * FROM games WHERE is_final=1 ORDER BY id DESC LIMIT 5")).fetchall()
+        games = db.execute(text("SELECT * FROM games WHERE week =:week"), {"week":0}).fetchall()
         managers = db.execute(text("SELECT * FROM managers")).fetchall()
         return render_template("index.html", games=games, managers=managers)
     finally:
@@ -144,7 +144,14 @@ def players():
     db = get_db()
     try:
         players = db.execute(text("SELECT * FROM players ORDER BY team, role")).fetchall()
-        return render_template("players.html", players=players)
+        
+        # get all player IDs currently on any roster
+        rostered = db.execute(text(
+            "SELECT DISTINCT player_id FROM rosters"
+        )).fetchall()
+        rostered_ids = {r.player_id for r in rostered}
+        
+        return render_template("players.html", players=players, rostered_ids=rostered_ids)
     finally:
         db.close()
 

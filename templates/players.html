@@ -67,8 +67,8 @@
                         </td>
                         <td><span class="badge badge-{{ p.role }}">{{ p.role }}</span></td>
                         <td>
-                            {% if p.drafted != '_' %}
-                            <span style="color:var(--muted); font-size:0.8rem;">Drafted</span>
+                            {% if p.id in rostered_ids %}
+                            <span style="color:var(--red); font-size:0.8rem;">Unavailable</span>
                             {% else %}
                             <span style="color:var(--green); font-size:0.8rem;">Available</span>
                             {% endif %}
@@ -116,11 +116,13 @@
                     >
                     {{ p.team }}
                 </div>
-                <span class="badge badge-{{ p.role }}">{{ p.role }}</span>
+                <!-- <span class="badge badge-{{ p.role }}">{{ p.role }}</span> -->
+                {% if p.id in rostered_ids %}
+                <span style="font-size:0.72rem; font-weight:600; color:#fff; background:var(--red); padding:2px 8px; border-radius:4px; display:inline-block; margin-top:4px; text-transform:uppercase; letter-spacing:0.04em;">Unavailable</span>
+                {% else %}
+                <span style="font-size:0.72rem; font-weight:600; color:#fff; background:var(--green); padding:2px 8px; border-radius:4px; display:inline-block; margin-top:4px; text-transform:uppercase; letter-spacing:0.04em;">Available</span>
+                {% endif %}
             </div>
-            {% if p.drafted != '_' %}
-            <div class="player-block-drafted">Drafted</div>
-            {% endif %}
         </div>
         {% endfor %}
     </div>
