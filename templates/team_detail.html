@@ -4,9 +4,10 @@
 
 <div class="team-header">
     {% if manager.logo_url %}
-    <img src="{{ manager.logo_url }}" class="team-logo-lg" alt="{{ manager.team_name }}">
+    <img src="../../assets/logos/{{manager.team_name}}.png" class="team-logo-lg" alt="{{ manager.team_name }}">
     {% else %}
-    <div class="team-logo-lg-placeholder">🏐</div>
+    <img src="../../assets/logos/{{manager.team_name}}.png" class="team-logo-lg" alt="{{ manager.team_name }}">
+    <!-- <div class="team-logo-lg-placeholder">🏐</div> -->
     {% endif %}
     <div>
         <h1>{{ manager.team_name }}</h1>
@@ -14,19 +15,32 @@
     </div>
 </div>
 
-<!-- Gameweek selector -->
-<div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap;">
-    <span style="font-family:var(--font-head); font-weight:700; text-transform:uppercase; font-size:0.9rem; color:var(--muted);">Gameweek:</span>
-    <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-        {% for gw in gameweeks %}
-        <a
-            href="/teams/{{ manager.id }}?gw={{ gw }}"
-            class="gw-pill {% if gw == selected_gw %}active{% endif %}"
-        >GW{{ gw }}</a>
-        {% endfor %}
+<!-- Controls row -->
+<div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap;">
+
+    <!-- Gameweek dropdown -->
+    <div style="display:flex; align-items:center; gap:0.75rem;">
+        <span style="font-family:var(--font-head); font-weight:700; text-transform:uppercase; font-size:0.9rem; color:var(--muted);">Gameweek:</span>
+        <select
+            id="gw-select"
+            onchange="window.location='/teams/{{ manager.id }}?gw=' + this.value + '&view=' + currentView()"
+            style="background:var(--bg-card); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:0.4rem 0.8rem; font-family:var(--font-head); font-weight:700; font-size:0.9rem; cursor:pointer; text-transform:uppercase;"
+        >
+            {% for gw in gameweeks %}
+            <option value="{{ gw }}" {% if gw == selected_gw %}selected{% endif %}>GW{{ gw }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- View toggle -->
+    <div style="display:flex; gap:0.5rem;">
+        <button id="btn-list"  onclick="setView('list')"  class="view-toggle-btn {% if view != 'court' %}active{% endif %}">📋 List</button>
+        <button id="btn-court" onclick="setView('court')" class="view-toggle-btn {% if view == 'court' %}active{% endif %}">🏐 Court</button>
     </div>
 </div>
 
+<!-- ── LIST VIEW ───────────────────────────────────────────────── -->
+<div id="view-list" {% if view == 'court' %}style="display:none;"{% endif %}>
 <div class="two-col">
     <div class="stats-section">
         <div class="section-title">⚡ <span>Starters</span> — GW{{ selected_gw }}</div>
@@ -44,19 +58,14 @@
                 <tbody>
                     {% for r in starters %}
                     <tr>
-                        <td style="font-weight:600;">{{ r.name }}</td>
+                        <td style="font-weight:600;">{% if r.is_captain %}👑 {% endif %}{{ r.name }}</td>
                         <td class="text-muted">{{ r.club }}</td>
                         <td><span class="badge badge-{{ r.role }}">{{ r.role }}</span></td>
                         <td class="text-right">
-                            {% if r.gw_pts >= 80 %}
-                            <span class="pts-high">{{ r.gw_pts }}</span>
-                            {% elif r.gw_pts >= 40 %}
-                            <span class="pts-mid">{{ r.gw_pts }}</span>
-                            {% elif r.gw_pts > 0 %}
-                            <span>{{ r.gw_pts }}</span>
-                            {% else %}
-                            <span class="pts-low">—</span>
-                            {% endif %}
+                            {% if r.gw_pts >= 80 %}<span class="pts-high">{{ r.gw_pts }}</span>
+                            {% elif r.gw_pts >= 40 %}<span class="pts-mid">{{ r.gw_pts }}</span>
+                            {% elif r.gw_pts > 0 %}<span>{{ r.gw_pts }}</span>
+                            {% else %}<span class="pts-low">—</span>{% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -79,13 +88,7 @@
         {% if bench %}
         <div class="card">
             <table>
-                <thead>
-                    <tr>
-                        <th>Player</th>
-                        <th>Club</th>
-                        <th>Position</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Player</th><th>Club</th><th>Position</th></tr></thead>
                 <tbody>
                     {% for r in bench %}
                     <tr>
@@ -102,9 +105,61 @@
         {% endif %}
     </div>
 </div>
+</div>
+
+<!-- ── COURT VIEW ──────────────────────────────────────────────── -->
+<div id="view-court" {% if view != 'court' %}style="display:none;"{% endif %}>
+    {% if court_image_url %}
+    <div style="text-align:center; margin-top:1rem;">
+        <img
+            src="{{ court_image_url }}"
+            alt="{{ manager.team_name }} lineup"
+            style="max-width:100%; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.4);"
+        >
+    </div>
+    {% else %}
+    <div class="card text-center" style="padding:3rem;">
+        <div style="font-size:3rem; margin-bottom:1rem;">🏐</div>
+        <div class="text-muted">No starters set for GW{{ selected_gw }} — set your lineup first.</div>
+    </div>
+    {% endif %}
+</div>
 
 <div class="mt-2">
     <a href="/teams" class="text-muted" style="font-size:0.9rem;">← Back to all teams</a>
 </div>
 
+<style>
+.view-toggle-btn {
+    font-family: var(--font-head);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.view-toggle-btn:hover { color:var(--text); border-color:var(--accent-dim); }
+.view-toggle-btn.active { background:var(--accent); border-color:var(--accent); color:#000; }
+</style>
+
+<script>
+function currentView() {
+    return document.getElementById('view-court').style.display === 'none' ? 'list' : 'court';
+}
+function setView(v) {
+    document.getElementById('view-list').style.display  = v === 'list'  ? 'block' : 'none';
+    document.getElementById('view-court').style.display = v === 'court' ? 'block' : 'none';
+    document.getElementById('btn-list').classList.toggle('active',  v === 'list');
+    document.getElementById('btn-court').classList.toggle('active', v === 'court');
+    const url = new URL(window.location);
+    url.searchParams.set('view', v);
+    window.history.replaceState({}, '', url);
+}
+</script>
 {% endblock %}

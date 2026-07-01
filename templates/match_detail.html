@@ -4,7 +4,7 @@
 
 <div class="match-header">
     <div class="home">
-        <img src="{{ url_for('static', filename='img/clubs/' + game.home.lower() + '.png') }}"
+        <img src="{{ url_for('static', filename='clubs/' + game.home.lower() + '.png') }}"
                             onerror="this.style.display='none'", style="width:64px; height:64px; object-fit:contain;", class="club-logo-sm" alt="">
         <div class="team-name">{{ game.home }}</div>
         {% if game.winner == game.home %}
@@ -24,7 +24,7 @@
         <div class="match-meta">Week {{ game.week }}</div>
     </div>
     <div class="away">
-        <img src="{{ url_for('static', filename='img/clubs/' + game.away.lower() + '.png') }}"
+        <img src="{{ url_for('static', filename='clubs/' + game.away.lower() + '.png') }}"
                             onerror="this.style.display='none'",style="width:64px; height:64px; object-fit:contain;", class="club-logo-sm" alt="">
         <div class="team-name">{{ game.away }}</div>
         {% if game.winner == game.away %}

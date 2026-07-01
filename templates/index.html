@@ -10,7 +10,7 @@
 <div class="two-col">
 
     <div>
-        <div class="section-title">Recent <span>Results</span></div>
+        <div class="section-title">Recent <span>Results - {{ current_week }} </span></div>
         <div class="match-grid">
             {% for game in games %}
             <a href="/matches/{{ game.id }}" class="match-card">
@@ -36,7 +36,7 @@
                     {% else %}
                         vs
                     {% endif %}
-                    <div class="match-meta">Week {{ game.week }}</div>
+                    <div class="match-meta">Week {{ current_week }}</div>
                 </div>
 
                 <div style="text-align:right;">

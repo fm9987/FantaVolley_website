@@ -18,9 +18,22 @@ def get_db():
 def index():
     db = get_db()
     try:
-        games = db.execute(text("SELECT * FROM games WHERE week =:week"), {"week":0}).fetchall()
+        # find the most recent week that has games
+        latest = db.execute(text(
+            "SELECT MAX(week) AS max_week FROM games"
+        )).fetchone()
+        print(latest.max_week)
+        current_week = latest.max_week if latest.max_week else 1
+
+        # get games from that week only
+        games = db.execute(text(
+            "SELECT * FROM games WHERE week = :week ORDER BY id"
+        ), {"week": current_week}).fetchall()
+
         managers = db.execute(text("SELECT * FROM managers")).fetchall()
-        return render_template("index.html", games=games, managers=managers)
+
+        return render_template("index.html", games=games, managers=managers,
+                               current_week=current_week)
     finally:
         db.close()
 
@@ -73,32 +86,31 @@ def teams():
 
 @app.route("/teams/<int:manager_id>")
 def team_detail(manager_id):
+    from flask import request
+    import sys, os
     db = get_db()
     try:
         manager = db.execute(
             text("SELECT * FROM managers WHERE id=:id"), {"id": manager_id}
         ).fetchone()
 
-        # get all available gameweeks
         gw_rows = db.execute(text(
             "SELECT DISTINCT gameweek FROM rosters WHERE manager_id=:id ORDER BY gameweek"
         ), {"id": manager_id}).fetchall()
         gameweeks = [r.gameweek for r in gw_rows]
 
-        # default to highest (most recent) gameweek
-        from flask import request
         try:
             selected_gw = int(request.args.get("gw", max(gameweeks) if gameweeks else 1))
         except (ValueError, TypeError):
             selected_gw = max(gameweeks) if gameweeks else 1
 
-        # get game IDs for selected gameweek
-        game_ids = db.execute(text("""
-            SELECT id FROM games WHERE week = :gw
-        """), {"gw": selected_gw}).fetchall()
+        view = request.args.get("view", "list")  # "list" or "court"
+
+        game_ids = db.execute(text(
+            "SELECT id FROM games WHERE week = :gw"
+        ), {"gw": selected_gw}).fetchall()
         gids = [r.id for r in game_ids]
 
-        # fetch roster with fantasy points for the selected gameweek
         if gids:
             placeholders = ",".join(str(g) for g in gids)
             roster = db.execute(text(f"""
@@ -122,9 +134,45 @@ def team_detail(manager_id):
                 ORDER BY r.is_starter DESC, p.role
             """), {"id": manager_id, "gw": selected_gw}).fetchall()
 
-        starters  = [r for r in roster if r.is_starter]
-        bench     = [r for r in roster if not r.is_starter]
-        gw_total  = sum(r.gw_pts for r in starters)
+        starters = [r for r in roster if r.is_starter]
+        bench    = [r for r in roster if not r.is_starter]
+        gw_total = sum(r.gw_pts for r in starters)
+
+        print(starters)
+        bot_dir = Path(__file__).parent.parent / "Bot"
+        sys.path.insert(0, str(bot_dir))
+        from court_render import render_lineup
+        # generate court image whenever starters exist — not just when court view is active
+        court_image_url = None
+        if starters:
+            try:
+                starters_data = [
+                    {"name": r.name, "role": r.role,
+                     "number": r.player_id, "is_captain": bool(r.is_captain)}
+                    for r in starters
+                ]
+                bench_data = [
+                    {"name": r.name, "role": r.role, "number": r.player_id}
+                    for r in bench
+                ]
+
+                img_dir = Path(__file__).parent.parent / "assets" / "lineups"
+                img_dir.mkdir(exist_ok=True)
+                img_path = img_dir / f"lineup_{manager_id}_{selected_gw}.png"
+
+                # # only regenerate if image doesn't exist yet (cache it)
+                # if not img_path.exists():
+                # print(f"[court] starters_data: {[(p['name'], p.get('is_captain')) for p in starters_data]}")
+                render_lineup(
+                    manager.team_name, starters_data, bench_data,
+                    manager.team, str(img_path)
+                )
+
+                court_image_url = f"/assets/lineups/lineup_{manager_id}_{selected_gw}.png"
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+
 
         return render_template("team_detail.html",
                                manager=manager,
@@ -132,7 +180,9 @@ def team_detail(manager_id):
                                bench=bench,
                                gameweeks=gameweeks,
                                selected_gw=selected_gw,
-                               gw_total=gw_total)
+                               gw_total=gw_total,
+                               view=view,
+                               court_image_url=court_image_url)
     finally:
         db.close()
 
@@ -239,7 +289,6 @@ def fantasy_matchup(matchup_id):
 
         home_players = get_player_pts(matchup.home_manager_id)
         away_players = get_player_pts(matchup.away_manager_id)
-
         return render_template("fantasy_matchup.html",
                                matchup=matchup,
                                home_players=home_players,
